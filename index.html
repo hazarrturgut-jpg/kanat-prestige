@@ -158,6 +158,7 @@ header>*{pointer-events:auto}
 #side.sold .live{display:none}
 #soldNote{display:none;margin-top:14px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#ff5a5a}
 #side.sold #soldNote{display:block}
+#live,#wa{display:none!important}
 .stamp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg);padding:10px 22px;border:2px solid #e5484d;color:#ff5a5a;
   font-weight:700;font-size:22px;letter-spacing:.32em;text-indent:.32em;border-radius:8px;background:rgba(229,72,77,.10);
   box-shadow:0 0 0 4px rgba(229,72,77,.12),0 0 30px rgba(229,72,77,.25);pointer-events:none;white-space:nowrap}
@@ -370,7 +371,7 @@ const isSold = (floor, apt) => (SOLD[floor] || []).includes(apt);
 // WhatsApp numarası: ülke kodu ile, boşluksuz (örn. 905321234567). Boşsa WhatsApp kişi seçtirir.
 const WA_NUMBER = '';
 // Örnek (demo) sitede izleyici sayısı simüle edilir. Gerçek projede gerçek sayaca bağlanmalı.
-const DEMO_VIEWERS = true;
+const DEMO_VIEWERS = false;
 const viewers = {};
 function viewerSeed(f, a) { const k = f + '-' + a; if (!(k in viewers)) { let h = (f * 73 + a * 151) % 997; viewers[k] = 20 + (h * 7919) % 21; } return k; }
 setInterval(() => {
