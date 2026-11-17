@@ -125,6 +125,16 @@ header>*{pointer-events:auto}
 .wa b{display:block;font-weight:600;font-size:14px;letter-spacing:.02em}
 .wa small{display:block;font-size:11px;color:var(--mute);margin-top:2px;letter-spacing:.04em}
 .wa .ar{margin-left:auto;color:var(--mute);transition:transform .3s}.wa:hover .ar{transform:translateX(4px);color:var(--ink)}
+.live{margin-top:18px;display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:14px;font-size:12.5px;line-height:1.4;color:var(--ink);
+  background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.14);
+  backdrop-filter:blur(16px) saturate(1.3);-webkit-backdrop-filter:blur(16px) saturate(1.3);box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+.live .dot{position:relative;width:10px;height:10px;flex:none;border-radius:50%;background:#ff4d4f}
+.live .dot:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(255,77,79,.55);animation:pulse 1.6s ease-out infinite}
+@keyframes pulse{from{transform:scale(.5);opacity:1}to{transform:scale(1.6);opacity:0}}
+.live .tag{font-size:9.5px;font-weight:700;letter-spacing:.2em;color:#ff6b6b;border:1px solid rgba(255,77,79,.45);border-radius:6px;padding:3px 6px;flex:none}
+.live b{display:inline-block;min-width:1.4em;text-align:center;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums;transition:transform .35s,opacity .35s}
+.live b.flip{transform:translateY(-6px);opacity:0}
+#side.sold .live{display:none}
 #soldNote{display:none;margin-top:14px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#ff5a5a}
 #side.sold #soldNote{display:block}
 .card.sold .im img{filter:blur(5px) grayscale(.5) brightness(.55)}
@@ -255,6 +265,7 @@ header>*{pointer-events:auto}
       <h2 id="dH"></h2>
       <div class="tot" id="dT"></div>
       <ul id="rooms"></ul>
+      <div class="live" id="live"><span class="dot"></span><span class="tag">CANLI</span><span>Bu daireyi sizinle birlikte <b id="liveN">24</b> kişi daha inceliyor</span></div>
       <div id="soldNote">● Bu daire bu katta satıldı</div>
       <a class="wa" id="wa" target="_blank" rel="noopener">
         <span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M17.5 14.4c-.3-.1-1.7-.8-2-.9-.3-.1-.5-.1-.7.1-.2.3-.8.9-.9 1.1-.2.2-.3.2-.6.1-.3-.1-1.2-.4-2.3-1.4-.9-.8-1.4-1.7-1.6-2-.2-.3 0-.4.1-.6l.4-.5c.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.6.6.7.2 1.3.2 1.8.1.6-.1 1.7-.7 1.9-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.3zM12 21.8c-1.8 0-3.5-.5-5-1.4l-.4-.2-3.7 1 1-3.6-.2-.4C2.7 15.6 2.2 13.8 2.2 12 2.2 6.6 6.6 2.2 12 2.2S21.8 6.6 21.8 12 17.4 21.8 12 21.8zM12 0C5.4 0 0 5.4 0 12c0 2.1.6 4.2 1.6 6L0 24l6.2-1.6c1.8 1 3.8 1.5 5.8 1.5 6.6 0 12-5.4 12-12S18.6 0 12 0z"/></svg></span>
@@ -336,6 +347,18 @@ const SOLD = { 1: [3], 2: [5], 3: [2], 4: [4], 5: [1], 6: [3] };
 const isSold = (floor, apt) => (SOLD[floor] || []).includes(apt);
 // WhatsApp numarası: ülke kodu ile, boşluksuz (örn. 905321234567). Boşsa WhatsApp kişi seçtirir.
 const WA_NUMBER = '';
+// Örnek (demo) sitede izleyici sayısı simüle edilir. Gerçek projede gerçek sayaca bağlanmalı.
+const DEMO_VIEWERS = true;
+const viewers = {};
+function viewerSeed(f, a) { const k = f + '-' + a; if (!(k in viewers)) { let h = (f * 73 + a * 151) % 997; viewers[k] = 20 + (h * 7919) % 21; } return k; }
+setInterval(() => {
+  if (!DEMO_VIEWERS || S.view !== 'daire' && S.view !== 'oda') return;
+  const k = viewerSeed(S.floor, S.apt);
+  let v = viewers[k] + (Math.random() < 0.5 ? -1 : 1);
+  viewers[k] = Math.max(20, Math.min(40, v));
+  const el = document.getElementById('liveN'); el.classList.add('flip');
+  setTimeout(() => { el.textContent = viewers[k]; el.classList.remove('flip'); }, 300);
+}, 2000);
 const pad2 = n => String(n).padStart(2, '0');
 const $ = id => document.getElementById(id);
 const S = { view: 'bina', floor: null, apt: null, room: null, busy: false, mode: 'day' };
@@ -626,6 +649,8 @@ function fillSide(n) {
   $('dT').textContent = `Toplam ${a.total} m² · ${a.rooms.length} bölüm`;
   const sold = isSold(S.floor, n);
   $('side').classList.toggle('sold', sold);
+  $('live').style.display = DEMO_VIEWERS ? '' : 'none';
+  $('liveN').textContent = viewers[viewerSeed(S.floor, n)];
   $('waT').textContent = sold ? 'Benzer daireler için bilgi alın' : "WhatsApp'tan fiyat alınız";
   $('waS').textContent = `Kanat Prestige · ${S.floor}. Kat · Daire ${pad2(n)}`;
   const msg = sold
