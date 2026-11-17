@@ -84,18 +84,39 @@ header>*{pointer-events:auto}
 .ttl h2{font-family:"Cormorant Garamond",serif;font-weight:400;font-size:clamp(34px,4vw,56px);line-height:1;margin-top:10px}
 .ttl h2 em{color:var(--gold)}
 .ttl p{color:var(--mute);font-size:13px;max-width:360px;line-height:1.6}
-#cards{flex:1;min-height:0;margin-top:28px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px}
-.card{position:relative;display:flex;flex-direction:column;border:1px solid var(--line);background:#161c1f;padding:16px;min-height:0;opacity:0;transform:translateY(24px);transition:opacity .55s,transform .55s cubic-bezier(.2,.7,.2,1),border-color .3s,background .3s,filter .3s}
-#kat.show .card{opacity:1;transform:none}
-.card .top{display:flex;justify-content:space-between;align-items:baseline}
-.card .top b{font-weight:500;font-size:11px;letter-spacing:.3em}
-.card .top span{font-size:12px;color:var(--mute)}
-.card .im{flex:1;min-height:0;display:grid;place-items:center;padding:14px 4px;transition:transform .45s cubic-bezier(.2,.7,.2,1)}
-.card .im img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:lighten}
-.card .go{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);opacity:0;transform:translateY(6px);transition:all .3s}
-#cards.hov .card{filter:brightness(.55)}
-#cards.hov .card.on{filter:none;border-color:rgba(210,176,122,.7);background:#1d201e}
-.card.on .im{transform:scale(1.05)}.card.on .go{opacity:1;transform:none}
+#kat .wrap{display:grid;grid-template-columns:300px minmax(0,1fr);gap:40px}
+.kside{display:flex;flex-direction:column;min-height:0}
+.kside p{color:var(--mute);font-size:13px;line-height:1.6;margin-top:14px}
+#aptList{list-style:none;margin-top:24px;border-top:1px solid var(--line);overflow:auto}
+#aptList li{display:flex;align-items:baseline;gap:12px;padding:13px 6px 13px 0;border-bottom:1px solid var(--line);cursor:pointer;position:relative;transition:padding .3s,background .3s}
+#aptList li:before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:2px;background:var(--gold);transform:scaleY(0);transition:transform .3s}
+#aptList li.on{padding-left:12px;background:rgba(210,176,122,.06)}#aptList li.on:before{transform:scaleY(1)}
+#aptList .n{font-weight:500;font-size:11px;letter-spacing:.28em;flex:1}
+#aptList .m{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+#aptList li.sold .n{color:var(--mute)}#aptList li.sold .m{color:#ff5a5a;letter-spacing:.16em;text-transform:uppercase;font-size:10px}
+#fpSlot{position:relative;min-height:0}
+#fp{position:absolute;opacity:0;transform:scale(.96);transition:opacity .6s .1s,transform .9s cubic-bezier(.2,.7,.2,1)}
+#kat.show #fp{opacity:1;transform:none}
+#fp img{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 30px 60px rgba(0,0,0,.5))}
+#fpSvg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ap{cursor:pointer}
+.ap polygon.f{fill:rgba(12,14,15,0);transition:fill .35s}
+.ap polygon.o{fill:none;stroke:rgba(255,255,255,.85);stroke-width:2;vector-effect:non-scaling-stroke;stroke-dasharray:7 6;transition:stroke .3s,stroke-width .3s}
+#fpSvg.hov .ap:not(.on) polygon.f{fill:rgba(12,14,15,.42)}
+.ap.on polygon.f{fill:rgba(210,176,122,.16)}
+.ap.on polygon.o{stroke:var(--gold);stroke-width:3.5;stroke-dasharray:none}
+.ap .pill rect{fill:rgba(15,18,19,.9);stroke:rgba(210,176,122,.75);stroke-width:1.5;vector-effect:non-scaling-stroke;transition:all .3s}
+.ap.on .pill rect{fill:var(--gold);stroke:var(--gold)}
+.ap .pill text{font-family:Manrope,sans-serif;fill:var(--ink)}
+.ap .pill text.t{font-weight:700;letter-spacing:.18em}
+.ap .pill text.m{fill:var(--gold);font-weight:500}
+.ap.on .pill text{fill:#121414}
+.ap .pill{transition:transform .35s;transform-box:fill-box;transform-origin:center}
+.ap.on .pill{transform:scale(1.08)}
+.ap .stampG rect{fill:rgba(229,72,77,.14);stroke:#e5484d;stroke-width:3;vector-effect:non-scaling-stroke}
+.ap .stampG text{fill:#ff5a5a;font-family:Manrope,sans-serif;font-weight:800;letter-spacing:.3em}
+.ap.sold polygon.f{fill:rgba(10,11,12,.38)}
+#fpSvg.hov .ap.sold:not(.on) polygon.f{fill:rgba(10,11,12,.55)}
 .back{display:inline-flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--mute);padding:10px 0}
 .back:hover{color:var(--ink)}
 
@@ -137,11 +158,9 @@ header>*{pointer-events:auto}
 #side.sold .live{display:none}
 #soldNote{display:none;margin-top:14px;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#ff5a5a}
 #side.sold #soldNote{display:block}
-.card.sold .im img{filter:blur(5px) grayscale(.5) brightness(.55)}
 .stamp{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-8deg);padding:10px 22px;border:2px solid #e5484d;color:#ff5a5a;
   font-weight:700;font-size:22px;letter-spacing:.32em;text-indent:.32em;border-radius:8px;background:rgba(229,72,77,.10);
   box-shadow:0 0 0 4px rgba(229,72,77,.12),0 0 30px rgba(229,72,77,.25);pointer-events:none;white-space:nowrap}
-.card.sold .top span{color:#ff5a5a}
 
 /* the big plan + room layer, flies between card and slot */
 #big{position:fixed;z-index:30;pointer-events:none;opacity:0}
@@ -205,8 +224,9 @@ header>*{pointer-events:auto}
   #floors button:before{left:20%;right:20%;top:auto;bottom:0;width:auto;height:2px;transform:scaleX(0)}#floors button.on:before{transform:scaleX(1)}
   .dock{bottom:18px}
   .wrap{inset:80px 16px 16px}
-  #cards{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:72%;overflow-x:auto;scroll-snap-type:x mandatory}
-  .card{scroll-snap-align:center}
+  #kat .wrap{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto}
+  .kside{display:contents}.kside p{display:none}#aptList{order:3;display:flex;overflow-x:auto;border:0;margin-top:0}
+  #aptList li{flex:none;border:1px solid var(--line);margin-right:8px;padding:10px 12px}
   #daire .wrap{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:16px}
   #side h2{font-size:38px}#rooms{max-height:24vh}
   #odaTxt{left:18px;right:18px;bottom:150px}#odaBar{left:18px;right:18px;bottom:18px}#odaThumbs{display:none}
@@ -248,11 +268,13 @@ header>*{pointer-events:auto}
 
 <section class="screen" id="kat">
   <div class="wrap">
-    <div class="ttl">
-      <div><button class="back" data-go="bina">← Binaya dön</button><div class="kk" id="katK"></div><h2>Dairenizi <em>seçin.</em></h2></div>
-      <p>Her katta aynı beş daire tipi bulunur. İncelemek istediğiniz daireye dokunun.</p>
+    <div class="kside">
+      <div><button class="back" data-go="bina">← Binaya dön</button><div class="kk" id="katK"></div></div>
+      <div class="ttl"><h2>Dairenizi <em>seçin.</em></h2></div>
+      <p>Kat planı üzerinde dairenize dokunun. Her katta aynı beş daire tipi bulunur.</p>
+      <ul id="aptList"></ul>
     </div>
-    <div id="cards"></div>
+    <div id="fpSlot"><div id="fp"><img src="kat.webp" alt="Normal kat planı"><svg id="fpSvg" viewBox="0 0 2162 1791"></svg></div></div>
   </div>
 </section>
 
@@ -359,6 +381,13 @@ setInterval(() => {
   const el = document.getElementById('liveN'); el.classList.add('flip');
   setTimeout(() => { el.textContent = viewers[k]; el.classList.remove('flip'); }, 300);
 }, 2000);
+const FLOORPLAN = { W: 2162, H: 1791, apts: {
+  1: { poly: [[1341, 968], [2146, 968], [2146, 1777], [1631, 1777], [1631, 1432], [1495, 1432], [1495, 1310], [1315, 1310], [1315, 1200], [1341, 1200]], label: [2011, 1496] },
+  2: { poly: [[729, 1310], [1495, 1310], [1495, 1432], [1631, 1432], [1631, 1777], [729, 1777]], label: [1150, 1560] },
+  3: { poly: [[14, 891], [330, 891], [330, 968], [375, 994], [652, 994], [652, 1310], [729, 1310], [729, 1777], [14, 1777]], label: [162, 1548] },
+  4: { poly: [[484, 15], [961, 15], [961, 885], [652, 885], [652, 956], [568, 956], [568, 801], [401, 801], [401, 543], [568, 543], [568, 382], [484, 382]], label: [804, 492] },
+  5: { poly: [[14, 15], [484, 15], [484, 382], [568, 382], [568, 543], [401, 543], [401, 801], [568, 801], [568, 898], [401, 898], [401, 956], [330, 956], [330, 885], [14, 885]], label: [173, 492] }
+} };
 const pad2 = n => String(n).padStart(2, '0');
 const $ = id => document.getElementById(id);
 const S = { view: 'bina', floor: null, apt: null, room: null, busy: false, mode: 'day' };
@@ -369,11 +398,11 @@ const preload = [];
 function img(src, arr) { const im = new Image(); im.decoding = 'async'; preload.push(new Promise(r => { im.onload = im.onerror = () => { tick(); r(); }; })); im.src = src; if (arr) arr.push(im); return im; }
 let loaded = 0, TOTAL = 0;
 function tick() { loaded++; $('lb').style.width = (loaded / TOTAL * 100) + '%'; }
-TOTAL = N * 2 + 3 + APTS.length;
+TOTAL = N * 2 + 3 + APTS.length + 1;
 for (let i = 0; i < N; i++) img(`f/l/${String(i + 1).padStart(3, '0')}.webp`, DL);
 for (let i = 0; i < N; i++) img(`f/r/${String(i + 1).padStart(3, '0')}.webp`, DR);
 NI['-1'] = img('n/sol.webp'); NI['0'] = img('n/on.webp'); NI['1'] = img('n/sag.webp');
-APTS.forEach(a => img(`plan/d${a.n}.webp`));
+APTS.forEach(a => img(`plan/d${a.n}.webp`)); img('kat.webp');
 Promise.all(preload).then(ready);
 // warm room photos in background (not blocking)
 setTimeout(() => Object.values(PHOTOS).flat().forEach(k => { const im = new Image(); im.src = `ic/${k}.webp`; }), 3000);
@@ -571,21 +600,44 @@ function openFloor(fl) {
   setTimeout(() => scene.classList.add('zoom'), 380);
   setTimeout(() => { showFloor(); S.busy = false; }, 820);
 }
+function fitFp() {
+  const r = $('fpSlot').getBoundingClientRect(), f = fitRect({ left: 0, top: 0, width: r.width, height: r.height }, FLOORPLAN.W, FLOORPLAN.H);
+  Object.assign($('fp').style, { left: f.left + 'px', top: f.top + 'px', width: f.width + 'px', height: f.height + 'px' });
+}
+function aptRect(n) {
+  // screen rect of an apartment on the floor plan
+  const r = $('fp').getBoundingClientRect(), p = FLOORPLAN.apts[n].poly;
+  const xs = p.map(q => q[0]), ys = p.map(q => q[1]);
+  const sx = r.width / FLOORPLAN.W, sy = r.height / FLOORPLAN.H;
+  return { left: r.left + Math.min(...xs) * sx, top: r.top + Math.min(...ys) * sy, width: (Math.max(...xs) - Math.min(...xs)) * sx, height: (Math.max(...ys) - Math.min(...ys)) * sy };
+}
+function aptHover(n) {
+  $('fpSvg').classList.toggle('hov', !!n);
+  document.querySelectorAll('#fpSvg .ap').forEach(g => g.classList.toggle('on', +g.dataset.n === n));
+  document.querySelectorAll('#aptList li').forEach(li => li.classList.toggle('on', +li.dataset.n === n));
+}
 function showFloor() {
   S.view = 'kat'; S.apt = null; crumb();
   $('katK').textContent = `${S.floor}. Kat · ${FLOOR_NAMES[S.floor]} kat`;
-  const cards = $('cards'); cards.innerHTML = '';
-  APTS.forEach((a, i) => {
-    const sold = isSold(S.floor, a.n);
-    const c = document.createElement('button'); c.className = 'card' + (sold ? ' sold' : '');
-    const d = (0.08 + i * 0.07) + 's'; c.style.transitionDelay = `${d},${d},0s,0s,0s`;
-    c.innerHTML = `<div class="top"><b>DAİRE ${pad2(a.n)}</b><span>${sold ? 'Satıldı' : a.total + ' m²'}</span></div><div class="im"><img src="plan/d${a.n}.webp" alt="Daire ${pad2(a.n)} 3D planı"></div>${sold ? '<div class="stamp">SATILDI</div>' : ''}<div class="go">${sold ? 'Planı incele →' : 'Daireyi keşfet →'}</div>`;
-    c.addEventListener('pointerenter', () => { cards.classList.add('hov'); c.classList.add('on'); });
-    c.addEventListener('pointerleave', () => { cards.classList.remove('hov'); c.classList.remove('on'); });
-    c.addEventListener('click', () => openApt(a.n, c.querySelector('img')));
-    cards.appendChild(c);
+  const fs = 34;
+  let defs = '<defs><filter id="fb" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="14"/><feColorMatrix type="saturate" values=".35"/></filter>', body = '';
+  APTS.forEach(a => {
+    const n = a.n, F = FLOORPLAN.apts[n], pts = F.poly.map(q => q.join(',')).join(' '), [lx, ly] = F.label, sold = isSold(S.floor, n);
+    if (sold) defs += `<clipPath id="cp${n}"><polygon points="${pts}"/></clipPath>`;
+    body += `<g class="ap${sold ? ' sold' : ''}" data-n="${n}">` +
+      (sold ? `<image href="kat.webp" width="${FLOORPLAN.W}" height="${FLOORPLAN.H}" filter="url(#fb)" clip-path="url(#cp${n})"/>` : '') +
+      `<polygon class="f" points="${pts}"/><polygon class="o" points="${pts}"/>` +
+      (sold
+        ? `<g class="stampG" transform="rotate(-8 ${lx} ${ly})"><rect x="${lx - 190}" y="${ly - 58}" width="380" height="116" rx="14"/><text x="${lx + 10}" y="${ly + 22}" text-anchor="middle" font-size="62">SATILDI</text></g>` +
+          `<g class="pill"><rect x="${lx - 110}" y="${ly + 82}" width="220" height="54" rx="27"/><text class="t" x="${lx}" y="${ly + 118}" text-anchor="middle" font-size="${fs * 0.8}">DAİRE ${pad2(n)}</text></g>`
+        : `<g class="pill"><rect x="${lx - 150}" y="${ly - 62}" width="300" height="124" rx="22"/><text class="t" x="${lx}" y="${ly - 6}" text-anchor="middle" font-size="${fs * 1.15}">DAİRE ${pad2(n)}</text><text class="m" x="${lx}" y="${ly + 40}" text-anchor="middle" font-size="${fs}">${a.total} m²</text></g>`) +
+      `</g>`;
   });
-  requestAnimationFrame(() => $('kat').classList.add('show'));
+  $('fpSvg').innerHTML = defs + '</defs>' + body;
+  $('aptList').innerHTML = APTS.map(a => `<li data-n="${a.n}" class="${isSold(S.floor, a.n) ? 'sold' : ''}"><span class="n">DAİRE ${pad2(a.n)}</span><span class="m">${isSold(S.floor, a.n) ? 'Satıldı' : a.total + ' m²'}</span></li>`).join('');
+  const bind = el => { const n = +el.dataset.n; el.addEventListener('pointerenter', () => aptHover(n)); el.addEventListener('pointerleave', () => aptHover(null)); el.addEventListener('click', () => openApt(n)); };
+  document.querySelectorAll('#fpSvg .ap, #aptList li').forEach(bind);
+  requestAnimationFrame(() => { fitFp(); $('kat').classList.add('show'); });
 }
 function backToBuilding() {
   if (S.busy) return; S.busy = true;
@@ -665,21 +717,27 @@ function fillSide(n) {
     li.addEventListener('click', () => openRoom(i));
   });
 }
-function openApt(n, fromImg) {
+function openApt(n) {
   if (S.busy) return; S.busy = true;
-  const from = fromImg.getBoundingClientRect();
-  bigImg.src = fromImg.src; big.classList.remove('fly', 'live'); big.style.transform = ''; big.style.opacity = 1; place(from);
-  fromImg.style.visibility = 'hidden';
+  aptHover(n);
+  const from = aptRect(n);
+  big.classList.remove('fly', 'live'); big.style.transform = ''; big.style.opacity = 0;
   S.apt = n; fillSide(n);
-  $('kat').classList.remove('show'); $('daire').classList.add('show');
-  S.view = 'daire'; crumb();
-  const go = () => requestAnimationFrame(() => requestAnimationFrame(() => {
-    buildRooms(n);
-    big.classList.add('fly');
-    place(fitRect($('bigslot').getBoundingClientRect(), bigImg.naturalWidth, bigImg.naturalHeight));
-    setTimeout(() => { fromImg.style.visibility = ''; big.classList.add('live'); S.busy = false; }, 880);
-  }));
-  bigImg.complete ? go() : (bigImg.onload = go);
+  const go = () => {
+    place(fitRect(from, bigImg.naturalWidth, bigImg.naturalHeight));
+    setTimeout(() => {
+      $('kat').classList.remove('show'); $('daire').classList.add('show');
+      S.view = 'daire'; crumb(); aptHover(null);
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        buildRooms(n);
+        big.classList.add('fly'); big.style.opacity = 1;
+        place(fitRect($('bigslot').getBoundingClientRect(), bigImg.naturalWidth, bigImg.naturalHeight));
+        setTimeout(() => { big.classList.add('live'); S.busy = false; }, 880);
+      }));
+    }, 260);
+  };
+  bigImg.onload = null; bigImg.src = `plan/d${n}.webp`;
+  bigImg.complete && bigImg.naturalWidth ? go() : (bigImg.onload = go);
 }
 function switchApt(d) {
   if (S.busy) return; S.busy = true;
@@ -698,12 +756,11 @@ $('nextD').addEventListener('click', () => switchApt(1));
 function hideBig() { big.classList.remove('live'); big.style.transition = 'opacity .3s'; big.style.opacity = 0; setTimeout(() => { big.style.transition = ''; big.classList.remove('fly'); }, 320); }
 function backToFloor() {
   if (S.busy || S.view !== 'daire') return; S.busy = true;
-  const card = [...document.querySelectorAll('#cards .card img')][S.apt - 1];
+  const n = S.apt;
   big.classList.remove('live'); roomHover(null);
-  $('kat').classList.add('show');
-  if (card) { card.style.visibility = 'hidden'; requestAnimationFrame(() => { big.classList.add('fly'); place(card.getBoundingClientRect()); }); }
-  $('daire').classList.remove('show');
-  setTimeout(() => { if (card) card.style.visibility = ''; big.style.opacity = 0; big.classList.remove('fly'); S.view = 'kat'; S.apt = null; crumb(); S.busy = false; }, 880);
+  $('kat').classList.add('show'); $('daire').classList.remove('show');
+  requestAnimationFrame(() => { big.classList.add('fly'); place(fitRect(aptRect(n), bigImg.naturalWidth, bigImg.naturalHeight)); big.style.opacity = 0; });
+  setTimeout(() => { big.classList.remove('fly'); S.view = 'kat'; S.apt = null; crumb(); S.busy = false; }, 880);
 }
 
 /* ================= ROOM (plan → photo) ================= */
@@ -758,7 +815,7 @@ function closeRoom(fast, then) {
   setTimeout(() => { roomHover(null); if (then) then(); }, fast ? 200 : 900);
 }
 addEventListener('resize', () => {
-  layout();
+  layout(); if (S.view === 'kat') fitFp();
   if ((S.view === 'daire' || S.view === 'oda') && bigImg.naturalWidth) { const t = big.style.transition; big.style.transition = 'none'; place(fitRect($('bigslot').getBoundingClientRect(), bigImg.naturalWidth, bigImg.naturalHeight)); requestAnimationFrame(() => big.style.transition = t); }
 });
 
