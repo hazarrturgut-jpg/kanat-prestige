@@ -402,6 +402,8 @@ function tick() { loaded++; $('lb').style.width = (loaded / TOTAL * 100) + '%'; 
 TOTAL = N * 2 + 3 + APTS.length + 1;
 for (let i = 0; i < N; i++) img(`f/l/${String(i + 1).padStart(3, '0')}.webp`, DL);
 for (let i = 0; i < N; i++) img(`f/r/${String(i + 1).padStart(3, '0')}.webp`, DR);
+const HQ = {}; // sharp 2x stills for the three resting facades (loaded after start, not blocking)
+setTimeout(() => [['-1', 'cL'], ['0', 'c0'], ['1', 'cR']].forEach(([k, f]) => { const im = new Image(); im.decoding = 'async'; im.onload = () => { HQ[k] = im; lastKey = ''; }; im.src = `hq/${f}.webp`; }), 600);
 NI['-1'] = img('n/sol.webp'); NI['0'] = img('n/on.webp'); NI['1'] = img('n/sag.webp');
 APTS.forEach(a => img(`plan/d${a.n}.webp`)); img('kat.webp');
 Promise.all(preload).then(ready);
@@ -436,9 +438,11 @@ function cover(im, alpha, dx) {
 function draw() {
   const key = (p <= 0 ? 'L' + Math.round(-p * (N - 1)) : 'R' + Math.round(p * (N - 1))) + '|' + p.toFixed(3) * (mix > 0 ? 1 : 0) + '|' + mix.toFixed(3);
   if (key === lastKey) return; lastKey = key;
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.globalAlpha = 1; ctx.fillStyle = '#121414'; ctx.fillRect(0, 0, innerWidth, innerHeight);
-  if (mix < 1) cover(dayFrame(p), 1, 0);
+  const rp = Math.round(p), atStop = Math.abs(p - rp) < 1e-4, hq = atStop ? HQ[String(rp)] : null;
+  if (mix < 1) cover(hq && hq.naturalWidth ? hq : dayFrame(p), 1, 0);
   if (mix > 0) {
     // night: no video → slide + crossfade between the two neighbouring stills
     const a = Math.floor(p + 1e-6), t = p - a, b = Math.min(1, a + 1);
