@@ -232,9 +232,105 @@ header>*{pointer-events:auto}
   #side h2{font-size:38px}#rooms{max-height:24vh}
   #odaTxt{left:18px;right:18px;bottom:150px}#odaBar{left:18px;right:18px;bottom:18px}#odaThumbs{display:none}
 }
+
+/* ===== scroll intro (showroom -> model -> site) ===== */
+#gate{position:fixed;inset:0;z-index:70;background:#0b0c0d;overflow:hidden;transition:opacity 1s ease}
+#gate.out{opacity:0;pointer-events:none}
+#gbg{position:absolute;inset:-60px;background:center/cover;filter:blur(38px) brightness(.45) saturate(1.1);transition:background-image .6s}
+#gcv{position:absolute;inset:0;width:100%;height:100%}
+#gshade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(to top,rgba(8,9,10,.82),rgba(8,9,10,.2) 45%,transparent 60%),linear-gradient(to bottom,rgba(8,9,10,.55),transparent 18%)}
+#gflash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.gcap{position:absolute;left:6vw;bottom:14vh;max-width:440px;color:#f3efe8;opacity:0;transform:translateY(18px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.gcap.on{opacity:1;transform:none}
+.gcap small{display:block;font-size:10.5px;letter-spacing:.38em;text-transform:uppercase;color:#d4b27c;margin-bottom:14px}
+.gcap h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;font-size:clamp(40px,5vw,72px);line-height:1;letter-spacing:-.01em}
+.gcap h2 em{color:#d4b27c}
+.gcap p{margin-top:14px;font-size:13.5px;line-height:1.7;color:rgba(243,239,232,.66)}
+#gdots{position:absolute;right:4vw;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:14px}
+#gdots i{width:6px;height:6px;border-radius:50%;background:rgba(243,239,232,.25);transition:all .5s}
+#gdots i.on{background:#d4b27c;box-shadow:0 0 0 5px rgba(212,178,124,.18)}
+#gnext{position:absolute;left:50%;bottom:4vh;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;font-size:10px;letter-spacing:.34em;text-transform:uppercase;color:rgba(243,239,232,.7);background:none;border:0;cursor:pointer;font-family:inherit;transition:opacity .5s}
+#gnext b{width:22px;height:36px;border:1.5px solid rgba(243,239,232,.6);border-radius:12px;position:relative}
+#gnext b:after{content:"";position:absolute;left:50%;top:7px;width:3px;height:7px;margin-left:-1.5px;border-radius:2px;background:#d4b27c;animation:gw 1.6s ease-in-out infinite}
+@keyframes gw{0%{transform:translateY(0);opacity:1}70%{transform:translateY(12px);opacity:0}100%{opacity:0}}
+#gskip{position:absolute;right:26px;top:24px;font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:rgba(243,239,232,.6);background:rgba(14,16,17,.5);border:1px solid rgba(243,239,232,.18);border-radius:99px;padding:10px 16px;cursor:pointer;font-family:inherit}
+#gbrand{position:absolute;left:6vw;top:5vh;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;letter-spacing:.22em;color:#e9cf9f}
+#gbrand small{display:block;font-family:inherit;font-size:9px;letter-spacing:.42em;color:rgba(243,239,232,.55);margin-top:6px}
+#bina{transition:transform 1.6s cubic-bezier(.2,.8,.2,1),filter 1.4s ease}
+body.pre #bina{transform:scale(1.18);filter:blur(10px) brightness(1.4)}
+@media (max-width:820px){.gcap{left:22px;right:22px;bottom:15vh}.gcap h2{font-size:38px}#gdots{right:16px}#gbrand{left:22px;top:22px;font-size:18px}}
 </style>
 </head>
 <body>
+
+<div id="gate">
+  <div id="gbg"></div>
+  <canvas id="gcv"></canvas>
+  <div id="gshade"></div>
+  <div id="gflash"></div>
+  <div id="gbrand">KANAT PRESTIGE<small>SATIŞ OFİSİ</small></div>
+  <div class="gcap" data-s="0"><small>Kanat Prestige · Satış Ofisi</small><h2>Hoş <em>geldiniz.</em></h2><p>Projemizi sizin için hazırladık. Aşağı kaydırın.</p></div>
+  <div class="gcap" data-s="1"><small>Proje</small><h2>Her detay,<br><em>ölçeğinde.</em></h2><p>6 kat, ferah daireler ve özenle tasarlanmış bir cephe.</p></div>
+  <div class="gcap" data-s="2"><small>Maket</small><h2>Masadaki maket,<br><em>birazdan gerçek.</em></h2></div>
+  <div class="gcap" data-s="3"><small>Hazır mısınız?</small><h2>Şimdi<br><em>içine girin.</em></h2><p>Bir kez daha kaydırın.</p></div>
+  <div id="gdots"><i class="on"></i><i></i><i></i><i></i></div>
+  <button id="gnext"><b></b>Kaydırın</button>
+  <button id="gskip">Siteye geç ›</button>
+</div>
+<script>
+(()=>{
+const G=document.getElementById('gate'),cv=document.getElementById('gcv'),cx=cv.getContext('2d'),fl=document.getElementById('gflash');
+document.body.classList.add('pre');
+const NF=121,F=new Array(NF),T=[0,36,68,92];
+let step=0,pos=0,target=0,lock=false,done=false,mont=null;
+function load(i){if(F[i]||i<0||i>=NF)return;const im=new Image();im.decoding='async';im.onload=()=>{F[i]=im;if(i===0)setBg(0)};im.src=`in/${String(i).padStart(3,'0')}.webp`;F[i]=null;}
+for(let i=0;i<NF;i++)load(i);
+const MON=['n/on.webp','ic/salon.webp','hq/cL.webp','ic/mutfak.webp','n/sol.webp','ic/yatak.webp','ic/banyo.webp','n/sag.webp','hq/cR.webp','ic/oturma.webp'].map(u=>{const im=new Image();im.src=u;return im});
+function size(){const d=Math.min(2,devicePixelRatio||1);cv.width=innerWidth*d;cv.height=innerHeight*d;}
+addEventListener('resize',size);size();
+function setBg(i){const im=F[i];if(im&&im.src)document.getElementById('gbg').style.backgroundImage=`url(${im.src})`}
+function near(i){i=Math.round(i);for(let d=0;d<NF;d++){if(F[i-d])return F[i-d];if(F[i+d])return F[i+d]}return null}
+function draw(im,cover,scale=1){if(!im)return;const W=cv.width,H=cv.height,r=im.naturalWidth/im.naturalHeight;
+  let w,h;if(cover||W/H<r*1.25){if(W/H>r){w=W;h=W/r}else{h=H;w=H*r}}else{h=H;w=H*r}
+  w*=scale;h*=scale;cx.clearRect(0,0,W,H);cx.imageSmoothingQuality='high';cx.drawImage(im,(W-w)/2,(H-h)/2,w,h)}
+function caption(k){G.querySelectorAll('.gcap').forEach(c=>c.classList.toggle('on',+c.dataset.s===k));G.querySelectorAll('#gdots i').forEach((d,i)=>d.classList.toggle('on',i===k))}
+caption(0);
+let last=0;
+function loop(t){if(done)return;const dt=Math.min(.05,(t-(last||t))/1000);last=t;
+  if(mont){mont(t)}else{pos+=(target-pos)*(1-Math.pow(.0015,dt));if(Math.abs(target-pos)<.05)pos=target;draw(near(pos),false)}
+  requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+function go(d){if(lock||done||mont)return;
+  if(d>0&&step===3){finale();return}
+  const n=Math.max(0,Math.min(3,step+d));if(n===step)return;step=n;target=T[step];caption(step);setTimeout(()=>setBg(T[step]),300);
+  lock=true;setTimeout(()=>lock=false,900)}
+addEventListener('wheel',e=>{if(done)return;e.preventDefault();e.stopImmediatePropagation();if(Math.abs(e.deltaY)<6)return;go(e.deltaY>0?1:-1)},{passive:false,capture:true});
+let ty=null;G.addEventListener('touchstart',e=>{ty=e.touches[0].clientY},{passive:true});
+G.addEventListener('touchend',e=>{if(ty==null)return;const d=ty-e.changedTouches[0].clientY;if(Math.abs(d)>40)go(d>0?1:-1);ty=null},{passive:true});
+addEventListener('keydown',e=>{if(done)return;e.stopImmediatePropagation();if(['ArrowDown','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();go(1)}if(['ArrowUp','PageUp'].includes(e.key))go(-1)},true);
+document.getElementById('gnext').onclick=()=>go(1);
+document.getElementById('gskip').onclick=()=>end(true);
+function finale(){
+  caption(-1);document.getElementById('gnext').style.opacity=0;
+  const t0=performance.now(),A=900;          // 1) model becomes the real building (video end)
+  const seq=[150,130,110,95,80,70,60,55,50,45];  // 2) accelerating flip montage (ms per image)
+  const MT=seq.reduce((a,b)=>a+b,0);
+  mont=t=>{const e=t-t0;
+    if(e<A){const x=e/A;pos=T[3]+(NF-1-T[3])*(x*x*(3-2*x));draw(near(pos),false,1+0.05*x);fl.style.opacity=0;return}
+    let m=e-A;
+    if(m<MT){let k=0;while(k<seq.length-1&&m>=seq[k]){m-=seq[k];k++}
+      const x=m/seq[k];draw(MON[k].complete?MON[k]:near(NF-1),true,1.12-0.06*x);fl.style.opacity=(0.55*(1-x)).toFixed(3);return}
+    const f=e-A-MT;                           // 3) white flash, then the site appears
+    fl.style.opacity=Math.min(1,f/120).toFixed(3);
+    if(f>160&&!G.dataset.e){G.dataset.e=1;end(false)}};
+}
+function end(skip){
+  done=true;document.body.classList.remove('pre');
+  if(skip){fl.style.opacity=0}
+  G.classList.add('out');setTimeout(()=>G.remove(),1100);
+}
+})();
+</script>
 
 <div id="bina">
   <div id="scene">
